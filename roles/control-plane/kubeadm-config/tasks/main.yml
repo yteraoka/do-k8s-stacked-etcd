@@ -1,0 +1,8 @@
+---
+- name: copy kubeadm-config.yaml
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: /tmp/kubeadm-config.yaml
+  tags:
+    - controle-plane
+    - kubeadm-config

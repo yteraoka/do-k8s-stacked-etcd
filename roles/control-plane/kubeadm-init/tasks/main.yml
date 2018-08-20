@@ -1,0 +1,8 @@
+---
+- name: kubeadm init
+  command: kubeadm init --config /tmp/kubeadm-config.yaml
+  args:
+    creates: /etc/kubernetes/manifests/kube-apiserver.yaml
+  tags:
+    - control-plane
+    - kubeadm-init

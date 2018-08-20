@@ -1,0 +1,25 @@
+---
+- name: get members
+  command: kubectl exec -n kube-system etcd-{{ hostvars[groups['first'][0]]['ansible_hostname'] }} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2379 member list
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: member_list
+  tags:
+    - control-plane
+    - etcd-add-member
+
+- name: etcd add member
+  command: kubectl exec -n kube-system etcd-{{ hostvars[groups['first'][0]]['ansible_hostname'] }} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://{{ hostvars[groups['first'][0]]['ansible_hostname'] }}:2379 member add {{ ansible_hostname }} https://{{ ansible_eth1.ipv4.address }}:2380
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: "'https://' + ansible_eth1.ipv4.address + ':' not in member_list.stdout"
+  tags:
+    - control-plane
+    - etcd-add-member
+
+# 複数回実行しても ok
+- name: kubeadm alpha phase etcd local
+  command: kubeadm alpha phase etcd local --config /tmp/kubeadm-config.yaml
+  tags:
+    - control-plane
+    - etcd-add-member

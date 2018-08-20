@@ -1,0 +1,10 @@
+---
+- name: copy kubernetes.repo
+  copy:
+    src: kubernetes.repo
+    dest: /etc/yum.repos.d/kubernetes.repo
+    owner: root
+    group: root
+    mode: "0644"
+  tags:
+    - k8s-repo

@@ -1,0 +1,26 @@
+---
+- name: install docker
+  yum:
+    name: docker
+  tags:
+    - docker
+
+- name: enable and start docker
+  service:
+    name: docker
+    enabled: yes
+    state: started
+  tags:
+    - docker
+
+- name: sysctl bridge-nf-call-iptables
+  sysctl:
+    sysctl_file: /etc/sysctl.d/k8s.conf
+    sysctl_set: yes
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+  with_items:
+    - name: net.bridge.bridge-nf-call-ip6tables
+      value: 1
+    - name: net.bridge.bridge-nf-call-iptables
+      value: 1

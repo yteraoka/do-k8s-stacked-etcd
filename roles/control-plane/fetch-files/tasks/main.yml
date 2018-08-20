@@ -1,0 +1,27 @@
+---
+- name: fetch cert, key files
+  fetch:
+    src: /etc/kubernetes/pki/{{ item }}
+    dest: fetched/{{ item }}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+    - sa.key
+    - sa.pub
+    - front-proxy-ca.crt
+    - front-proxy-ca.key
+    - etcd/ca.crt
+    - etcd/ca.key
+  tags:
+    - control-plane
+    - fetch-files
+
+- name: fetch admin.conf
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: fetched/admin.conf
+    flat: yes
+  tags:
+    - control-plane
+    - fetch-files

@@ -1,0 +1,50 @@
+---
+- hosts: control-plane
+  remote_user: root
+  roles:
+    - role: common/yum-update
+      when: do_yum_update is defined
+    - role: common/docker
+    - role: common/selinux
+    - role: common/k8s-repo
+    - role: common/kube-tools
+    - role: control-plane/kubeadm-config
+    - role: control-plane/kubeadm-init
+      when: "'first' in group_names"
+    - role: control-plane/fetch-files
+      when: "'first' in group_names"
+
+    # cp2, cp3
+    - role: control-plane/distribute-files
+      when: "'first' not in group_names"
+
+    # cp2
+    - role: control-plane/kubeadm-alpha-phase-command
+      when: "'second' in group_names"
+    - role: control-plane/etcd-add-member
+      when: "'second' in group_names"
+    - role: control-plane/deploy-control-plane-component
+      when: "'second' in group_names"
+
+    # cp3
+    - role: control-plane/kubeadm-alpha-phase-command
+      when: "'third' in group_names"
+    - role: control-plane/etcd-add-member
+      when: "'third' in group_names"
+    - role: control-plane/deploy-control-plane-component
+      when: "'third' in group_names"
+
+    - role: control-plane/kubectl-config
+
+    - role: control-plane/calico
+      when: "'first' not in group_names"
+
+#- hosts: worker
+#  remote_user: root
+#  roles:
+#    - role: common/yum-update
+#      when: do_yum_update is defined
+#    - role: common/docker
+#    - role: common/selinux
+#    - role: common/k8s-repo
+#    - role: common/kube-tools

@@ -1,0 +1,13 @@
+---
+- name: set selinux permissive
+  lineinfile:
+    dest: /etc/selinux/config
+    line: 'SELINUX=permissive'
+    regexp: '^SELINUX='
+  tags:
+    - selinux
+
+- name: setenforce 0
+  command: /usr/sbin/setenforce 0
+  tags:
+    - selinux

@@ -1,0 +1,23 @@
+---
+- name: mkdir ~/.kube
+  file:
+    state: directory
+    path: ~root/.kube
+    owner: root
+    group: root
+    mode: "700"
+  tags:
+    - control-plane
+    - kubectl-config
+
+- name: copy .kube/config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: ~root/.kube/config
+    owner: root
+    group: root
+    mode: "0600"
+    remote_src: yes
+  tags:
+    - control-plane
+    - kubectl-config

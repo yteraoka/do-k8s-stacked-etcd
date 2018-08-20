@@ -1,0 +1,58 @@
+---
+- name: mkdir /etc/kubernetes/pki/etcd
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    - /etc/kubernetes
+    - /etc/kubernetes/pki
+    - /etc/kubernetes/pki/etcd
+  tags:
+    - control-plane
+    - distribute-files
+
+- name: copy certs
+  copy:
+    src: fetched/{{ item }}
+    dest: /etc/kubernetes/pki/{{ item }}
+    owner: root
+    group: root
+    mode: "0644"
+  with_items:
+    - ca.crt
+    - sa.pub
+    - front-proxy-ca.crt
+    - etcd/ca.crt
+  tags:
+    - control-plane
+    - distribute-files
+
+- name: copy keys
+  copy:
+    src: fetched/{{ item }}
+    dest: /etc/kubernetes/pki/{{ item }}
+    owner: root
+    group: root
+    mode: "0600"
+  with_items:
+    - ca.key
+    - sa.key
+    - front-proxy-ca.key
+    - etcd/ca.key
+  tags:
+    - control-plane
+    - distribute-files
+
+- name: copy admin.conf
+  copy:
+    src: fetched/admin.conf
+    dest: /etc/kubernetes/admin.conf
+    owner: root
+    group: root
+    mode: "0644"
+  tags:
+    - control-plane
+    - distribute-files
