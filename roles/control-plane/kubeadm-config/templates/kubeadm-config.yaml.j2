@@ -12,16 +12,16 @@ etcd:
             advertise-client-urls: "https://{{ ansible_eth1.ipv4.address }}:2379"
             listen-peer-urls: "https://{{ ansible_eth1.ipv4.address }}:2380"
             initial-advertise-peer-urls: "https://{{ ansible_eth1.ipv4.address }}:2380"
-{% if ansible_hostname == 'cp1' %}
+{% if 'first' in group_names %}
             initial-cluster: "{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
 {% endif %}
-{% if ansible_hostname == 'cp2' %}
-            initial-cluster: "{% for h in groups['control-plane'] %}{% if hostvars[h]['ansible_hostname'] == 'cp1' %}{{ hostvars[h]['ansible_hostname'] }}=https://{{ hostvars[h]['ansible_eth1']['ipv4']['address'] }}:2380,{% endif %}{% endfor %}{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
+{% if 'second' in group_names %}
+            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_hostname'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
 {% endif %}
-{% if ansible_hostname == 'cp3' %}
-            initial-cluster: "{% for h in groups['control-plane'] %}{% if hostvars[h]['ansible_hostname'] == 'cp1' %}{{ hostvars[h]['ansible_hostname'] }}=https://{{ hostvars[h]['ansible_eth1']['ipv4']['address'] }}:2380,{% endif %}{% endfor %}{% for h in groups['control-plane'] %}{% if hostvars[h]['ansible_hostname'] == 'cp2' %}{{ hostvars[h]['ansible_hostname'] }}=https://{{ hostvars[h]['ansible_eth1']['ipv4']['address'] }}:2380,{% endif %}{% endfor %}{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
+{% if 'third' in group_names %}
+            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_hostname'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ hostvars[groups['second'][0]]['ansible_hostname'] }}=https://{{ hostvars[groups['second'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
 {% endif %}
-{% if ansible_hostname != 'cp1' %}
+{% if 'first' not in group_names %}
             initial-cluster-state: existing
 {% endif %}
         serverCertSANs:
