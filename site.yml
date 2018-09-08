@@ -1,6 +1,10 @@
 ---
 - hosts: control-plane
   remote_user: root
+  vars_prompt:
+    - name: load_balancer_dns
+      prompt: "DNS name of API server (k8s-api.example.com)"
+      private: no
   roles:
     - role: common/yum-update
       when: do_yum_update is defined
