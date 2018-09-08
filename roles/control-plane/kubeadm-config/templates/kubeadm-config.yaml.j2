@@ -13,22 +13,22 @@ etcd:
             listen-peer-urls: "https://{{ ansible_eth1.ipv4.address }}:2380"
             initial-advertise-peer-urls: "https://{{ ansible_eth1.ipv4.address }}:2380"
 {% if 'first' in group_names %}
-            initial-cluster: "{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
+            initial-cluster: "{{ ansible_nodename }}=https://{{ ansible_eth1.ipv4.address }}:2380"
 {% endif %}
 {% if 'second' in group_names %}
-            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_hostname'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
+            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_nodename'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_nodename }}=https://{{ ansible_eth1.ipv4.address }}:2380"
 {% endif %}
 {% if 'third' in group_names %}
-            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_hostname'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ hostvars[groups['second'][0]]['ansible_hostname'] }}=https://{{ hostvars[groups['second'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_hostname }}=https://{{ ansible_eth1.ipv4.address }}:2380"
+            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_nodename'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ hostvars[groups['second'][0]]['ansible_nodename'] }}=https://{{ hostvars[groups['second'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_nodename }}=https://{{ ansible_eth1.ipv4.address }}:2380"
 {% endif %}
 {% if 'first' not in group_names %}
             initial-cluster-state: existing
 {% endif %}
         serverCertSANs:
-        - {{ ansible_hostname }}
+        - {{ ansible_nodename }}
         - {{ ansible_eth1.ipv4.address }}
         peerCertSANs:
-        - {{ ansible_hostname }}
+        - {{ ansible_nodename }}
         - {{ ansible_eth1.ipv4.address }}
 networking:
     # This CIDR is a calico default. Substitute or remove for your CNI provider.
