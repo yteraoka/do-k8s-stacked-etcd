@@ -37,7 +37,7 @@
     - role: control-plane/kubectl-config
 
     - role: control-plane/calico
-      when: "'first' not in group_names"
+      when: "'first' in group_names"
 
 #- hosts: worker
 #  remote_user: root
