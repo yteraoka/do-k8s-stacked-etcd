@@ -8,7 +8,28 @@ DigitalOcean の dynamic inventory を使用するため、環境変数 `DO_API_
 
 OS はひとまず CentOS 7
 
-## doctl で DigitalOcean のリソースを作成
+## サーバー等の準備 (Terraform)
+
+Terraform でサーバー、ロードバランサー、DNS をセットアップ
+
+(doctl だとやっぱり面倒なので)
+
+```
+cd terraform
+bash init.sh
+terraform plan -out tfout
+terraform apply tfout
+```
+
+使い終わった後の削除も楽
+
+```
+terraform destroy
+```
+
+## サーバー等の準備 (doctl)
+
+doctl で各リソースを作成
 
 `--ssh-keys` の値は例
 
