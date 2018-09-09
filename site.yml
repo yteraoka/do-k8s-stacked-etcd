@@ -12,6 +12,7 @@
     - role: common/selinux
     - role: common/k8s-repo
     - role: common/kube-tools
+    - role: common/helm-command
     - role: control-plane/kubeadm-config
     - role: control-plane/kubeadm-init
       when: "'first' in group_names"

@@ -1,0 +1,27 @@
+---
+- name: download helm
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-helm/helm-v2.10.0-linux-amd64.tar.gz
+    dest: /var/tmp/helm-v2.10.0-linux-amd64.tar.gz
+    checksum: sha256:0fa2ed4983b1e4a3f90f776d08b88b0c73fd83f305b5b634175cb15e61342ffe
+  tags:
+    - helm-command
+
+- name: extract helm-v2.10.0-linux-amd64.tar.gz
+  unarchive:
+    src: /var/tmp/helm-v2.10.0-linux-amd64.tar.gz
+    dest: /var/tmp
+    remote_src: yes
+  tags:
+    - helm-command
+
+- name: copy helm to /usr/local/bin/
+  copy:
+    src: /var/tmp/linux-amd64/helm
+    dest: /usr/local/bin/helm
+    owner: root
+    group: root
+    mode: 0755
+    remote_src: yes
+  tags:
+    - helm-command
