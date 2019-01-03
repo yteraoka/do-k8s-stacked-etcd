@@ -5,6 +5,9 @@
     - name: load_balancer_dns
       prompt: "DNS name of API server (k8s-api.example.com)"
       private: no
+  vars:
+    helm_version: v2.12.1
+    helm_sha256sum: "891004bec55431b39515e2cedc4f4a06e93782aa03a4904f2bd742b168160451"
   roles:
     - role: common/yum-update
       when: do_yum_update is defined
