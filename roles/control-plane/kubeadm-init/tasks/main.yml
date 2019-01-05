@@ -1,8 +1,26 @@
 ---
 - name: kubeadm init
-  command: kubeadm init --config /tmp/kubeadm-config.yaml
+  command: kubeadm init --config=/tmp/kubeadm-config.yaml --ignore-preflight-errors=NumCPU
   args:
     creates: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: kubeadm_init
   tags:
     - control-plane
     - kubeadm-init
+
+#- name: output kubeadm token
+#  debug:
+#    var: item
+#  with_items: kubeadm_init.stdout_lines
+#  when:
+#    - kubeadm_init.changed
+#    - item.find(' kubeadm join ') != -1
+#  tags:
+#    - kubeadm-join
+
+- name: enable kubelet
+  service:
+    name: kubelet
+    enabled: yes
+  tags:
+    - kubeadm-join

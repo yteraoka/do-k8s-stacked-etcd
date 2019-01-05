@@ -8,14 +8,6 @@
     - yum-update
 
 - name: reboot
-  shell: sleep 2 && reboot
-  async: 1
-  poll: 0
-  when: yum_update.changed
-
-- name: wait for reboot
-  wait_for_connection:
-    delay: 15
-    sleep: 5
-    timeout: 300
+  reboot:
+    reboot_timeout: 600
   when: yum_update.changed

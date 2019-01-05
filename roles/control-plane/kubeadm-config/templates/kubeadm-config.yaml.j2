@@ -1,35 +1,12 @@
-apiVersion: kubeadm.k8s.io/v1alpha2
-kind: MasterConfiguration
-kubernetesVersion: v1.11.0
-apiServerCertSANs:
-- "{{ load_balancer_dns }}"
-api:
-    controlPlaneEndpoint: "{{ load_balancer_dns }}:{{ load_balancer_port | default(443) }}"
-etcd:
-    local:
-        extraArgs:
-            listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_eth1.ipv4.address }}:2379"
-            advertise-client-urls: "https://{{ ansible_eth1.ipv4.address }}:2379"
-            listen-peer-urls: "https://{{ ansible_eth1.ipv4.address }}:2380"
-            initial-advertise-peer-urls: "https://{{ ansible_eth1.ipv4.address }}:2380"
-{% if 'first' in group_names %}
-            initial-cluster: "{{ ansible_nodename }}=https://{{ ansible_eth1.ipv4.address }}:2380"
-{% endif %}
-{% if 'second' in group_names %}
-            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_nodename'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_nodename }}=https://{{ ansible_eth1.ipv4.address }}:2380"
-{% endif %}
-{% if 'third' in group_names %}
-            initial-cluster: "{{ hostvars[groups['first'][0]]['ansible_nodename'] }}=https://{{ hostvars[groups['first'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ hostvars[groups['second'][0]]['ansible_nodename'] }}=https://{{ hostvars[groups['second'][0]]['ansible_eth1']['ipv4']['address'] }}:2380,{{ ansible_nodename }}=https://{{ ansible_eth1.ipv4.address }}:2380"
-{% endif %}
-{% if 'first' not in group_names %}
-            initial-cluster-state: existing
-{% endif %}
-        serverCertSANs:
-        - {{ ansible_nodename }}
-        - {{ ansible_eth1.ipv4.address }}
-        peerCertSANs:
-        - {{ ansible_nodename }}
-        - {{ ansible_eth1.ipv4.address }}
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: "{{ kube_version }}"
+apiServer:
+    certSANs:
+    - "{{ load_balancer_dns }}"
+controlPlaneEndpoint: "{{ load_balancer_dns }}:{{ load_balancer_port | default(443) }}"
+{% if pod_subnet is defined %}
 networking:
     # This CIDR is a calico default. Substitute or remove for your CNI provider.
-    podSubnet: "192.168.0.0/16"
+    podSubnet: "{{ pod_subnet }}"
+{% endif %}

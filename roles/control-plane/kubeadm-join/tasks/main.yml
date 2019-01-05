@@ -1,0 +1,26 @@
+---
+- name: get token
+  shell: kubeadm token list | tail -n 1 | awk '{print $1}'
+  register: kubeadm_token
+  tags:
+    - kubeadm-join
+
+- name: get ca public key hash
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: ca_pub_hash
+  tags:
+    - kubeadm-join
+
+- name: kubeadm join
+  command: kubeadm join {{ load_balancer_dns }}:443 --token {{ kubeadm_token.stdout }} --discovery-token-ca-cert-hash sha256:{{ ca_pub_hash.stdout }} --experimental-control-plane
+  args:
+    creates: /etc/kubernetes/kubelet.conf
+  tags:
+    - kubeadm-join
+
+- name: enable kubelet
+  service:
+    name: kubelet
+    enabled: yes
+  tags:
+    - kubeadm-join
