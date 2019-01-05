@@ -6,11 +6,18 @@
       prompt: "DNS name of API server (k8s-api.example.com)"
       private: no
   vars:
+    kube_version: 1.13.1
+    kube_version_yum: "{{ kube_version }}-0"
     helm_version: v2.12.1
     helm_sha256sum: "891004bec55431b39515e2cedc4f4a06e93782aa03a4904f2bd742b168160451"
+    pod_subnet: "192.168.0.0/16"
+    calico_version: v3.4
+    cni_plugin: weave
   roles:
     - role: common/yum-update
       when: do_yum_update is defined
+    - role: common/epel
+    - role: common/jq
     - role: common/docker
     - role: common/selinux
     - role: common/k8s-repo
@@ -26,33 +33,42 @@
     - role: control-plane/distribute-files
       when: "'first' not in group_names"
 
-    # cp2
-    - role: control-plane/kubeadm-alpha-phase-command
-      when: "'second' in group_names"
-    - role: control-plane/etcd-add-member
-      when: "'second' in group_names"
-    - role: control-plane/deploy-control-plane-component
-      when: "'second' in group_names"
-
-    # cp3
-    - role: control-plane/kubeadm-alpha-phase-command
-      when: "'third' in group_names"
-    - role: control-plane/etcd-add-member
-      when: "'third' in group_names"
-    - role: control-plane/deploy-control-plane-component
-      when: "'third' in group_names"
-
+    # cp1, cp2, cp3
     - role: control-plane/kubectl-config
 
-    - role: control-plane/calico
+    # cp1
+    - role: control-plane/wait-kubeadm-init
       when: "'first' in group_names"
 
-#- hosts: worker
-#  remote_user: root
-#  roles:
-#    - role: common/yum-update
-#      when: do_yum_update is defined
-#    - role: common/docker
-#    - role: common/selinux
-#    - role: common/k8s-repo
-#    - role: common/kube-tools
+    # cp1
+    - role: control-plane/calico
+      when:
+        - "'first' in group_names"
+        - cni_plugin == "calico"
+
+    # cp1
+    - role: control-plane/cni-plugin-weave
+      when:
+        - "'first' in group_names"
+        - cni_plugin == "weave"
+
+    # cp1
+    - role: control-plane/wait-kubeadm-init
+      when: "'first' in group_names"
+
+    # cp2, cp3
+    - role: control-plane/kubeadm-join
+      when: "'first' not in group_names"
+
+- hosts: worker
+  remote_user: root
+  vars:
+    kube_version: 1.13.1
+    kube_version_yum: "{{ kube_version }}-0"
+  roles:
+    - role: common/yum-update
+      when: do_yum_update is defined
+    - role: common/docker
+    - role: common/selinux
+    - role: common/k8s-repo
+    - role: common/kube-tools

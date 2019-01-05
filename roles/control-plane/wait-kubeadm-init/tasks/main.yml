@@ -1,0 +1,7 @@
+---
+- name: wait startup pods
+  pause:
+    minutes: 2
+    prompt: "Ready?"
+  tags:
+    - wait-kubeadm-init

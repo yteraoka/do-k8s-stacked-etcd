@@ -1,12 +1,12 @@
 ---
-- name: kubectl apply rbac-kdd.yaml
-  command: kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+- name: kubectl apply calico etcd.yaml
+  command: kubectl apply -f https://docs.projectcalico.org/{{ calico_version }}/getting-started/kubernetes/installation/hosted/etcd.yaml
   tags:
     - control-plane
     - calico
 
 - name: kubectl apply calico.yaml
-  command: kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+  command: kubectl apply -f https://docs.projectcalico.org/{{ calico_version }}/getting-started/kubernetes/installation/hosted/calico.yaml
   tags:
     - control-plane
     - calico

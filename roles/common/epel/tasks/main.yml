@@ -1,0 +1,6 @@
+---
+- name: install epel repository
+  yum:
+    name: epel-release
+  tags:
+    - epel

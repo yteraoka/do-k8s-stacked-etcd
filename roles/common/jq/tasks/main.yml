@@ -1,0 +1,7 @@
+---
+- name: install jq
+  yum:
+    name: jq
+    enablerepo: epel
+  tags:
+    - jq

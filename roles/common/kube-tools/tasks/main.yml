@@ -11,7 +11,7 @@
 #    - kube-tools
 
 - name: install kubelet
-  command: yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+  command: yum install -y kubelet-{{ kube_version_yum }} kubeadm-{{ kube_version_yum }} kubectl-{{ kube_version_yum }} --disableexcludes=kubernetes
   args:
     warn: no
   tags:

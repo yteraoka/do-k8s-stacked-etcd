@@ -27,6 +27,192 @@ terraform apply tfout
 terraform destroy
 ```
 
+CPU の数は最低2つ必要とされており、足りていない場合は kubectl init でエラーとなるが、テスト用などで無視したい場合は `--ignore-preflight-errors=NumCPU` をセットする
+
+<!---
+
+```
+[init] Using Kubernetes version: v1.13.1
+[preflight] Running pre-flight checks
+        [WARNING Service-Kubelet]: kubelet service is not enabled, please run 'systemctl enable kubelet.service'
+error execution phase preflight: [preflight] Some fatal errors occurred:
+        [ERROR NumCPU]: the number of available CPUs 1 is less than the required 2
+[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
+```
+
+```
+# kubeadm init --config /tmp/kubeadm-config.yaml --ignore-preflight-errors=NumCPU
+[init] Using Kubernetes version: v1.13.1
+[preflight] Running pre-flight checks
+        [WARNING NumCPU]: the number of available CPUs 1 is less than the required 2
+        [WARNING Service-Kubelet]: kubelet service is not enabled, please run 'systemctl enable kubelet.service'
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Activating the kubelet service
+[certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "ca" certificate and key
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [cp1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local k8s-api.do.teraoka.me k8s-api.do.teraoka.me] and IPs [10.96.0.1 178.128.218.44]
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "front-proxy-ca" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [cp1 localhost] and IPs [178.128.218.44 127.0.0.1 ::1]
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [cp1 localhost] and IPs [178.128.218.44 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Generating "sa" key and public key
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
+[kubeconfig] Writing "admin.conf" kubeconfig file
+[endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
+[kubeconfig] Writing "kubelet.conf" kubeconfig file
+[endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[control-plane] Using manifest folder "/etc/kubernetes/manifests"
+[control-plane] Creating static Pod manifest for "kube-apiserver"
+[control-plane] Creating static Pod manifest for "kube-controller-manager"
+[control-plane] Creating static Pod manifest for "kube-scheduler"
+[etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
+[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
+[kubelet-check] Initial timeout of 40s passed.
+[apiclient] All control plane components are healthy after 50.614228 seconds
+[uploadconfig] storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config-1.13" in namespace kube-system with the configuration for the kubelets in the cluster
+[patchnode] Uploading the CRI Socket information "/var/run/dockershim.sock" to the Node API object "cp1" as an annotation
+[mark-control-plane] Marking the node cp1 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node cp1 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+[bootstrap-token] Using token: 381xdy.2p79kl2lbqnvp58b
+[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+[bootstraptoken] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstraptoken] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstraptoken] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstraptoken] creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[addons] Applied essential addon: CoreDNS
+[endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
+[addons] Applied essential addon: kube-proxy
+
+Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join k8s-api.do.teraoka.me:443 --token 381xdy.2p79kl2lbqnvp58b --discovery-token-ca-cert-hash sha256:f26de6f3117c0ab4730f4e7294a7f59415d365dbeb5c0829672b970696756799
+
+```
+
+```
+# kubeadm join k8s-api.do.teraoka.me:443 --token 3dvqss.mgzbedpf0yxy127b --discovery-token-ca-cert-hash sha256:f374c3dfd972c78ddc479c9f4c3b1452b3417d26d65916d671157be06b5f18be --experimental-control-plane
+[preflight] Running pre-flight checks
+        [WARNING Service-Kubelet]: kubelet service is not enabled, please run 'systemctl enable kubelet.service'
+[discovery] Trying to connect to API Server "k8s-api.do.teraoka.me:443"
+[discovery] Created cluster-info discovery client, requesting info from "https://k8s-api.do.teraoka.me:443"
+[discovery] Requesting info from "https://k8s-api.do.teraoka.me:443" again to validate TLS against the pinned public key
+[discovery] Cluster info signature and contents are valid and TLS certificate validates against pinned roots, will use API Server "k8s-api.do.teraoka.me:443"
+[discovery] Successfully established connection with API Server "k8s-api.do.teraoka.me:443"
+[join] Reading configuration from the cluster...
+[join] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[join] Running pre-flight checks before initializing the new control plane instance
+        [WARNING Service-Kubelet]: kubelet service is not enabled, please run 'systemctl enable kubelet.service'
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [cp2 localhost] and IPs [178.128.22.228 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [cp2 localhost] and IPs [178.128.22.228 127.0.0.1 ::1]
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [cp2 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local k8s-api.do.teraoka.me k8s-api.do.teraoka.me] and IPs [10.96.0.1 178.128.22.228]
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] valid certificates and keys now exist in "/etc/kubernetes/pki"
+[certs] Using the existing "sa" key
+[endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
+[kubeconfig] Using existing up-to-date kubeconfig file: "/etc/kubernetes/admin.conf"
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[etcd] Checking Etcd cluster health
+[kubelet] Downloading configuration for the kubelet from the "kubelet-config-1.13" ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Activating the kubelet service
+[tlsbootstrap] Waiting for the kubelet to perform the TLS Bootstrap...
+[patchnode] Uploading the CRI Socket information "/var/run/dockershim.sock" to the Node API object "cp2" as an annotation
+[etcd] Announced new etcd member joining to the existing etcd cluster
+[etcd] Wrote Static Pod manifest for a local etcd instance to "/etc/kubernetes/manifests/etcd.yaml"
+[uploadconfig] storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet-check] Initial timeout of 40s passed.
+[mark-control-plane] Marking the node cp2 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node cp2 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+
+This node has joined the cluster and a new control plane instance was created:
+
+* Certificate signing request was sent to apiserver and approval was received.
+* The Kubelet was informed of the new secure connection details.
+* Master label and taint were applied to the new node.
+* The Kubernetes control plane instances scaled up.
+* A new etcd member was added to the local/stacked etcd cluster.
+
+To start administering your cluster from this node, you need to run the following as a regular user:
+
+        mkdir -p $HOME/.kube
+        sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Run 'kubectl get nodes' to see this node join the cluster.
+```
+
+```
+# kubectl get nodes
+NAME   STATUS   ROLES    AGE    VERSION
+cp1    Ready    master   168m   v1.13.1
+cp2    Ready    master   12m    v1.13.1
+cp3    Ready    master   50s    v1.13.1
+```
+
+```
+# kubeadm join k8s-api.do.teraoka.me:443 --token 3dvqss.mgzbedpf0yxy127b --discovery-token-ca-cert-hash sha256:f374c3dfd972c78ddc479c9f4c3b1452b3417d26d65916d671157be06b5f18be
+[preflight] Running pre-flight checks
+        [WARNING Service-Kubelet]: kubelet service is not enabled, please run 'systemctl enable kubelet.service'
+[discovery] Trying to connect to API Server "k8s-api.do.teraoka.me:443"
+[discovery] Created cluster-info discovery client, requesting info from "https://k8s-api.do.teraoka.me:443"
+[discovery] Requesting info from "https://k8s-api.do.teraoka.me:443" again to validate TLS against the pinned public key
+[discovery] Cluster info signature and contents are valid and TLS certificate validates against pinned roots, will use API Server "k8s-api.do.teraoka.me:443"
+[discovery] Successfully established connection with API Server "k8s-api.do.teraoka.me:443"
+[join] Reading configuration from the cluster...
+[join] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[kubelet] Downloading configuration for the kubelet from the "kubelet-config-1.13" ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Activating the kubelet service
+[tlsbootstrap] Waiting for the kubelet to perform the TLS Bootstrap...
+[patchnode] Uploading the CRI Socket information "/var/run/dockershim.sock" to the Node API object "worker-0" as an annotation
+
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+Run 'kubectl get nodes' on the master to see this node join the cluster.
+```
+
+--->
+
 ## サーバー等の準備 (doctl)
 
 doctl で各リソースを作成
@@ -119,6 +305,12 @@ doctl compute droplet create worker1 worker2 worker3 \
 
 ## Ansible Playbook の実行
 
+`inventory/digital_ocean.py` で必要な module のインストール
+
+```
+pip install requests
+```
+
 ```
 ansible-playbook site.yml -e load_balancer_dns=xxx.example.com
 ```
@@ -145,19 +337,54 @@ kubeadm join xxx.example.com:443 --token e69t47.k98pkcidzvgexwbz \
    sha256:b0e28afb25529ad1405d6adecd4a154ace51b6245ff59477f5ea465e221936de
 ```
 
+## Windows への kubectl のインストール
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl/
+
+[Chocolatey](https://chocolatey.org/) や [Powershell Gallery](https://www.powershellgallery.com/) からもインストールできるようだが、git-bash 使いなので curl でダウンロードする
+
+```
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.13.1/bin/windows/amd64/kubectl.exe
+```
+
 ## Dashboard のインストール
 
 playbook とは関係ないが、メモ
 
 CLI だけよりも Web UI があった方が便利なので [dashboard](https://github.com/kubernetes/dashboard/) をインストールする方法
 
-## kubectl apply でインストール
+### kubectl apply でインストール
+
+#### Recommended
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 ```
 
-## アクセスするためのユーザーを作成
+<!---
+実行した際の出力
+
+```
+secret/kubernetes-dashboard-certs created
+serviceaccount/kubernetes-dashboard created
+role.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created
+deployment.apps/kubernetes-dashboard created
+service/kubernetes-dashboard created
+```
+--->
+
+http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+
+#### Alternative (TLS (https およびクライアント認証) が不要)
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/alternative/kubernetes-dashboard.yaml
+```
+
+http://localhost:8001/api/v1/namespaces/kube-system/services/kubernetes-dashboard:/proxy/
+
+### Dashboard にアクセスするためのユーザーを作成
 
 Creating sample user
 https://github.com/kubernetes/dashboard/wiki/Creating-sample-user
@@ -172,7 +399,7 @@ metadata:
   name: admin-user
   namespace: kube-system
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: admin-user
@@ -186,8 +413,8 @@ subjects:
   namespace: kube-system
 ```
 
-`kubectl apply` で適用すると admin-user というサービスアカウントが作成され、それに
-cluster-admin role がセットされる
+`kubectl apply -f admin-user.yaml` で適用すると admin-user というサービスアカウントが作成され、
+それに cluster-admin role がセットされる
 
 ```
 kubectl apply -f admin-user.yaml
@@ -203,14 +430,23 @@ Dashboard にアクセスするにはローカル PC で `kubectl proxy` を実�
 kubectl get serviceaccounts admin-user -o yaml -n kube-system
 ```
 
+次のコマンドで secret 名が取得できる
+
 ```
-kubectl get secret admin-user-token-x8r9b -o yaml -n kube-system
+secret_name=$(kubectl get serviceaccounts admin-user -o json -n kube-system | jq -r .secrets[].name)
+```
+
+取得した secret 名で secret を取得する
+
+```
+kubectl get secret ${secret_name} -o yaml -n kube-system
 ```
 
 これで取得できる secret は base64 encoded なので decode する必要がある
 
 ```
-kubectl get secret admin-user-token-x8r9b -o json -n kube-system | jq -r .data.token | sed 's/\n//' | base64 -d
+kubectl get secret ${secret_name} -o json -n kube-system \
+  | jq -r .data.token | sed 's/\n//' | base64 -d
 ```
 
 もしくは

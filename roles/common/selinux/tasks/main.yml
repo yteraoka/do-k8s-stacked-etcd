@@ -1,9 +1,14 @@
 ---
+- name: install libselinux-python
+  yum:
+    name: libselinux-python
+  tags:
+    - selinux
+
 - name: set selinux permissive
-  lineinfile:
-    dest: /etc/selinux/config
-    line: 'SELINUX=permissive'
-    regexp: '^SELINUX='
+  selinux:
+    policy: targeted
+    state: permissive
   tags:
     - selinux
 
