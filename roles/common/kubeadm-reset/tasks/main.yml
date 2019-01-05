@@ -1,0 +1,10 @@
+---
+- name: kubeadm reset
+  command: kubeadm reset -f
+  tags:
+    - kubeadm-reset
+
+- name: reset iptables
+  shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+  tags:
+    - kubeadm-reset

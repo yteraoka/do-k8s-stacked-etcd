@@ -1,0 +1,5 @@
+---
+- hosts: control-plane, worker
+  remote_user: root
+  roles:
+    - role: common/kubeadm-reset
